@@ -37,6 +37,10 @@ public class AuthService {
     @Value("${JWT.REFRESHABLE_DURATION}")
     protected long REFRESHABLE_DURATION;
 
+    @NonFinal
+    @Value("${JWT.ISSUER}")
+    protected String ISSUER;
+
     @Autowired
     AccountRepository accountRepository;
 
@@ -66,7 +70,7 @@ public class AuthService {
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(account.getPhoneNumber())
-                .issuer("kma.connectify")
+                .issuer(ISSUER)
                 .issueTime(new Date())
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
