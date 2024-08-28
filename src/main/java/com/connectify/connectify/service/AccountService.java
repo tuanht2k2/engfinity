@@ -1,7 +1,7 @@
 package com.connectify.connectify.service;
 
 import com.connectify.connectify.DTO.request.EditAccountRequest;
-import com.connectify.connectify.DTO.response.AccountResponse;
+import com.connectify.connectify.DTO.response.PrivateAccountResponse;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.enums.EError;
 import com.connectify.connectify.exception.CustomException;
@@ -12,7 +12,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +50,8 @@ public class AccountService {
         Optional<Account> optionalAccount = accountRepository.findById(id);
         if (optionalAccount.isPresent()) {
             Account account = optionalAccount.get();
-            AccountResponse accountResponse = modelMapper.map(account, AccountResponse.class);
-            CommonResponse<AccountResponse> response = new CommonResponse<>(200, accountResponse, "Get account successfully!");
+            PrivateAccountResponse privateAccountResponse = modelMapper.map(account, PrivateAccountResponse.class);
+            CommonResponse<PrivateAccountResponse> response = new CommonResponse<>(200, privateAccountResponse, "Get account successfully!");
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         CommonResponse<?> response = new CommonResponse<>(500, null, "Bad request!");

@@ -1,6 +1,5 @@
 package com.connectify.connectify.controller;
 
-import com.connectify.connectify.DTO.response.AccountResponse;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
