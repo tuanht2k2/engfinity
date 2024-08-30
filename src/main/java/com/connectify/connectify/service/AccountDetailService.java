@@ -30,4 +30,5 @@ public class AccountDetailService implements UserDetailsService {
                 AuthorityUtils.createAuthorityList(String.valueOf(account.getRoles()))
         );
     }
+
 }

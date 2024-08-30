@@ -6,7 +6,8 @@ public enum EError {
     EXISTED_BY_PHONE_NUMBER("Phone number is existed!"),
     EXISTED_BY_IDENTIFICATION_NUMBER("Phone number is existed!"),
     USER_NOT_EXISTED("User is not existed!"),
-    INCORRECT_PASSWORD("Password is not correct!");
+    INCORRECT_PASSWORD("Password is not correct!"),
+    UNAUTHENTICATED("Account is not authenticated!");
 
     private final String message;
 

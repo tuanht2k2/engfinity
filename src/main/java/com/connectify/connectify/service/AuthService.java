@@ -4,6 +4,7 @@ import com.connectify.connectify.DTO.request.AuthenticationRequest;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.DTO.response.LoginResponse;
 import com.connectify.connectify.DTO.response.PrivateAccountResponse;
+import com.connectify.connectify.JWT.JWTUtil;
 import com.connectify.connectify.enums.EError;
 import com.connectify.connectify.exception.CustomException;
 import com.connectify.connectify.model.Account;
@@ -11,6 +12,8 @@ import com.connectify.connectify.repository.AccountRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
 import lombok.experimental.NonFinal;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +31,6 @@ import java.util.UUID;
 
 @Service
 public class AuthService {
-    @NonFinal
-    @Value("${JWT.SIGNER_KEY}")
-    protected String SIGNER_KEY;
-
-    @NonFinal
-    @Value("${JWT.VALID_DURATION}")
-    protected long VALID_DURATION;
-
-    @NonFinal
-    @Value("${JWT.REFRESHABLE_DURATION}")
-    protected long REFRESHABLE_DURATION;
-
-    @NonFinal
-    @Value("${JWT.ISSUER}")
-    protected String ISSUER;
-
     @Autowired
     AccountRepository accountRepository;
 
@@ -52,6 +39,9 @@ public class AuthService {
 
     @Autowired
     ModelMapper mapper;
+
+    @Autowired
+    JWTUtil jwtUtil;
 
     public ResponseEntity<CommonResponse<?>> authenticate (AuthenticationRequest request) {
         Optional<Account> optionalAccount = accountRepository.findByPhoneNumber(request.getPhoneNumber());
@@ -62,7 +52,7 @@ public class AuthService {
         if (!isAuthenticated) throw new CustomException(EError.INCORRECT_PASSWORD);
 
         try {
-            String token = generateToken(account);
+            String token = jwtUtil.generateToken(account);
             PrivateAccountResponse accountResponse = mapper.map(account, PrivateAccountResponse.class);
             LoginResponse loginResponse = new LoginResponse();
             loginResponse.setToken(token);
@@ -72,27 +62,6 @@ public class AuthService {
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String generateToken(Account account) throws JOSEException {
-        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
-
-        JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(account.getPhoneNumber())
-                .issuer(ISSUER)
-                .issueTime(new Date())
-                .expirationTime(new Date(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
-                .jwtID(UUID.randomUUID().toString())
-                .build();
-
-        Payload payload = new Payload(jwtClaimsSet.toJSONObject());
-
-        JWSObject jwsObject = new JWSObject(header, payload);
-
-        jwsObject.sign(new MACSigner(SIGNER_KEY.getBytes()));
-
-        return jwsObject.serialize();
     }
 
 }
