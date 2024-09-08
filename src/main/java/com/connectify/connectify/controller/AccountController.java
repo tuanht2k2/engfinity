@@ -6,9 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins= "*")
 @RestController
-@RequestMapping("/api/v1/account")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
     @Autowired
     AccountService accountService;
@@ -17,5 +16,4 @@ public class AccountController {
     public ResponseEntity<CommonResponse<?>> getAccount (@PathVariable String id) {
         return accountService.getAccount(id);
     }
-
 }

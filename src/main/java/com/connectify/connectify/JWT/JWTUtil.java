@@ -2,7 +2,7 @@ package com.connectify.connectify.JWT;
 
 import com.connectify.connectify.enums.EError;
 import com.connectify.connectify.exception.CustomException;
-import com.connectify.connectify.model.Account;
+import com.connectify.connectify.entity.Account;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;

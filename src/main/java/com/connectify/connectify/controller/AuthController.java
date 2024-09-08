@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(path = "/api/v1/auth")
 public class AuthController {
@@ -27,7 +26,6 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<CommonResponse<String>> register (@RequestBody EditAccountRequest request) {
-        System.out.println(request.getPhoneNumber());
         return accountService.createAccount(request);
     }
 }
