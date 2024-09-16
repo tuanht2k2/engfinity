@@ -7,6 +7,7 @@ import java.util.Date;
 
 @Data
 public class PrivateAccountResponse {
+    private String id;
     private String email;
     private String phoneNumber;
     private String displayName;

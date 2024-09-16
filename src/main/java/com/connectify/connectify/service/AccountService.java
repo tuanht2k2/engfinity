@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +38,16 @@ public class AccountService {
 
     AccountService() {
         this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+
+    public Account getCurrentAccount() {
+        UsernamePasswordAuthenticationToken authenticationToken =
+                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+
+        if (authenticationToken != null && authenticationToken.getPrincipal() instanceof Account) {
+            return (Account) authenticationToken.getPrincipal();
+        }
+        return null;
     }
 
     public ResponseEntity<CommonResponse<String>> createAccount (EditAccountRequest editAccountRequest) {

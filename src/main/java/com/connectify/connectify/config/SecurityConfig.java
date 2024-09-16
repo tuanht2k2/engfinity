@@ -30,13 +30,13 @@ public class SecurityConfig {
     @Autowired
     JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public static String[] PUBLIC_END_POINTS = {"/api/v1/auth", "/api/v1/auth/*"};
+    public static String[] PUBLIC_END_POINTS = {"/api/v1/auth", "/api/v1/auth/*, /app, /app/*"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                .cors(Customizer.withDefaults())
+                .cors(AbstractHttpConfigurer::disable)
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_END_POINTS)
                         .permitAll()
@@ -51,7 +51,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://192.168.34.100:8081"));
+        configuration.setAllowedOrigins(List.of("http://192.168.1.11:8081", "http://192.168.1.11"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setExposedHeaders(List.of("Authorization"));
@@ -62,7 +62,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

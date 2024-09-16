@@ -47,6 +47,7 @@ public class JWTUtil {
                 .expirationTime(new Date(
                         Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()))
                 .jwtID(UUID.randomUUID().toString())
+                .claim("id", account.getId())
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
