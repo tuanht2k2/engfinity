@@ -26,14 +26,14 @@ public class RoleService {
     @Autowired
     ModelMapper mapper;
 
-    public ResponseEntity create (EditRoleRequest request) {
+    public ResponseEntity<?> create (EditRoleRequest request) {
         Set<EPermission> permissionNames = request.getPermissions();
         Set<Permission> permissions = permissionRepository.findAllByName(permissionNames);
         Role newRole = new Role();
         newRole.setName(request.getName());
         newRole.setPermissions(permissions);
         roleRepository.save(newRole);
-        CommonResponse response = new CommonResponse(200, "", "Create role successfully!");
+        CommonResponse<?> response = new CommonResponse<>(200, "", "Create role successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

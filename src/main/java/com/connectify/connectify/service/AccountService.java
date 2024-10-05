@@ -10,6 +10,7 @@ import com.connectify.connectify.exception.CustomException;
 import com.connectify.connectify.entity.Account;
 import com.connectify.connectify.repository.AccountRepository;
 import com.connectify.connectify.repository.RoleRepository;
+import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +35,13 @@ public class AccountService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    AuthService authService;
+
     private BCryptPasswordEncoder passwordEncoder;
 
     AccountService() {
         this.passwordEncoder = new BCryptPasswordEncoder();
-    }
-
-    public Account getCurrentAccount() {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
-
-        if (authenticationToken != null && authenticationToken.getPrincipal() instanceof Account) {
-            return (Account) authenticationToken.getPrincipal();
-        }
-        return null;
     }
 
     public ResponseEntity<CommonResponse<String>> createAccount (EditAccountRequest editAccountRequest) {
@@ -84,6 +78,20 @@ public class AccountService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> updateRole (ERole roleName, String accountId) {
+        Optional<Account> optionalAccount = accountRepository.findById(accountId);
+        if (optionalAccount.isEmpty()) throw  new CustomException(EError.USER_NOT_EXISTED);
+        Account currentAccount = authService.getCurrentAccount();
+        if (!authService.hasRole(currentAccount.getId(), ERole.ADMIN)) throw new CustomException(EError.UNAUTHORIZED);
+        Account targetAccount = optionalAccount.get();
+        Set<Role> targetAccountRoles = targetAccount.getRoles().isEmpty() ? new HashSet<Role>() : targetAccount.getRoles();
 
+        Role role = roleRepository.findByName(roleName);
+        targetAccountRoles.add(role);
+        targetAccount.setRoles(targetAccountRoles);
+        accountRepository.save(targetAccount);
 
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Update role successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

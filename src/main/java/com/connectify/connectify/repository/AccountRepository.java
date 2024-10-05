@@ -1,7 +1,10 @@
 package com.connectify.connectify.repository;
 
 import com.connectify.connectify.entity.Account;
+import com.connectify.connectify.enums.ERole;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -13,4 +16,10 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     boolean existsByIdentificationNumber(String identificationNumber);
 
     Optional<Account> findByPhoneNumber(String phoneNumber);
+
+    @Query(value = "SELECT CASE WHEN COUNT(*) > 0 THEN true ELSE false END " +
+            "FROM accounts_roles ar " +
+            "JOIN roles r ON ar.role_id = r.name " +
+            "WHERE ar.account_id = :accountId AND r.name = :roleName", nativeQuery = true)
+    boolean hasRole(@Param("accountId") String accountId, @Param("roleName") ERole roleName);
 }
