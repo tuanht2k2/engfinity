@@ -1,8 +1,10 @@
 package com.connectify.connectify.service;
 
+import com.connectify.connectify.DTO.request.CommonSearchRequest;
 import com.connectify.connectify.DTO.request.EditAccountRequest;
 import com.connectify.connectify.DTO.response.PrivateAccountResponse;
 import com.connectify.connectify.DTO.response.CommonResponse;
+import com.connectify.connectify.DTO.response.PublicAccountResponse;
 import com.connectify.connectify.entity.Role;
 import com.connectify.connectify.enums.EError;
 import com.connectify.connectify.enums.ERole;
@@ -75,6 +77,17 @@ public class AccountService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
         CommonResponse<?> response = new CommonResponse<>(500, null, "Bad request!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private PublicAccountResponse accountToPublicAccountResponse(Account account) {
+        return modelMapper.map(account, PublicAccountResponse.class);
+    }
+
+    public ResponseEntity<?> search (CommonSearchRequest request) {
+        List<Account> accounts = accountRepository.search(request.getPage() * request.getPageSize(), request.getPageSize(), request.getSortBy(), request.getSortDir(), request.getKeyword());
+        List<PublicAccountResponse> accountResponses = accounts.stream().map(this::accountToPublicAccountResponse).toList();
+        CommonResponse<?> response = new CommonResponse<>(200, accountResponses, "Search accounts successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
