@@ -1,6 +1,7 @@
 package com.connectify.connectify.service;
 
 import com.connectify.connectify.DTO.request.AuthenticationRequest;
+import com.connectify.connectify.DTO.request.EditAccountRequest;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.DTO.response.LoginResponse;
 import com.connectify.connectify.DTO.response.PrivateAccountResponse;
@@ -57,7 +58,6 @@ public class AuthService {
         }
     }
 
-
     public Account getCurrentAccount() {
         UsernamePasswordAuthenticationToken authenticationToken =
                 (UsernamePasswordAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
@@ -75,5 +75,14 @@ public class AuthService {
 
     public boolean hasRole(String accountId, ERole role) {
         return accountRepository.hasRole(accountId, role);
+    }
+
+
+    public ResponseEntity<?> checkValidRegisterInfo(EditAccountRequest request) {
+        if (accountRepository.existsByPhoneNumber(request.getPhoneNumber())) throw new CustomException(EError.EXISTED_BY_PHONE_NUMBER);
+        if (accountRepository.existsByEmail(request.getEmail())) throw new CustomException(EError.EXISTED_BY_EMAIL);
+        if (accountRepository.existsByIdentificationNumber(request.getEmail())) throw new CustomException(EError.EXISTED_BY_IDENTIFICATION_NUMBER);
+        CommonResponse<?> response = new CommonResponse<>(200, true, "Info is valid!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

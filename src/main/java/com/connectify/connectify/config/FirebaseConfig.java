@@ -15,7 +15,6 @@ public class FirebaseConfig {
     public FirebaseApp initializeFirebase() throws IOException {
         FileInputStream serviceAccount =
                 new FileInputStream("src/main/resources/serviceAccountKey.json");
-        System.out.println(serviceAccount.available() + "hieh");
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                 .setDatabaseUrl("https://connectify-kma-default-rtdb.asia-southeast1.firebasedatabase.app")

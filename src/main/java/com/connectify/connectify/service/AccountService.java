@@ -2,15 +2,14 @@ package com.connectify.connectify.service;
 
 import com.connectify.connectify.DTO.request.CommonSearchRequest;
 import com.connectify.connectify.DTO.request.EditAccountRequest;
-import com.connectify.connectify.DTO.response.PrivateAccountResponse;
-import com.connectify.connectify.DTO.response.CommonResponse;
-import com.connectify.connectify.DTO.response.PublicAccountResponse;
+import com.connectify.connectify.DTO.response.*;
 import com.connectify.connectify.entity.Role;
 import com.connectify.connectify.enums.EError;
 import com.connectify.connectify.enums.ERole;
 import com.connectify.connectify.exception.CustomException;
 import com.connectify.connectify.entity.Account;
 import com.connectify.connectify.repository.AccountRepository;
+import com.connectify.connectify.repository.RelationshipRepository;
 import com.connectify.connectify.repository.RoleRepository;
 import com.google.api.Http;
 import lombok.AllArgsConstructor;
@@ -39,6 +38,10 @@ public class AccountService {
 
     @Autowired
     AuthService authService;
+
+    @Autowired
+    RelationshipService relationshipService;
+
 
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -70,13 +73,22 @@ public class AccountService {
 
     public ResponseEntity<CommonResponse<?>> getAccount (String id) {
         Optional<Account> optionalAccount = accountRepository.findById(id);
-        if (optionalAccount.isPresent()) {
-            Account account = optionalAccount.get();
-            PrivateAccountResponse privateAccountResponse = modelMapper.map(account, PrivateAccountResponse.class);
-            CommonResponse<PrivateAccountResponse> response = new CommonResponse<>(200, privateAccountResponse, "Get account successfully!");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
+        Account account = optionalAccount.get();
+        Account currentAccount = authService.getCurrentAccount();
+        CommonResponse<?> response;
+        if (account.getId().equals(currentAccount.getId())) {
+            PrivateAccountResponse accountResponse = modelMapper.map(account, PrivateAccountResponse.class);
+            response = new CommonResponse<>(200, accountResponse, "Get account successfully!");
+        } else {
+            PublicAccountDetailResponse accountResponse = modelMapper.map(account, PublicAccountDetailResponse.class);
+            RelationshipResponse relationshipResponse = relationshipService.getRelationshipByAccounts(id);
+            if (relationshipResponse != null) {
+                accountResponse.setRelationship(relationshipResponse);
+            }
+            response = new CommonResponse<>(200, accountResponse, "Get account successfully!");
         }
-        CommonResponse<?> response = new CommonResponse<>(500, null, "Bad request!");
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

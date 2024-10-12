@@ -29,4 +29,9 @@ public class AuthController {
     public ResponseEntity<CommonResponse<String>> register (@RequestBody EditAccountRequest request) {
         return accountService.createAccount(request);
     }
+
+    @PostMapping("/check-valid-register-info")
+    public ResponseEntity<?> checkValidRegisterInfo (@RequestBody EditAccountRequest request) {
+        return authService.checkValidRegisterInfo(request);
+    }
 }

@@ -53,7 +53,8 @@ public class MessageService {
         Message createdMessage = messageRepository.save(message);
 
         DatabaseReference databaseReference = firebaseService.getDatabaseIns("messengers/");
-        databaseReference.child(request.getMessengerId()).child("messages").setValueAsync(createdMessage.getId());
+        System.out.println(request.getMessengerId());
+        databaseReference.child(request.getMessengerId()).child("messages").child(createdMessage.getId()).setValueAsync("");
 
         CommonResponse<?> response = new CommonResponse<>(200, null, "Create message successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -1,16 +1,16 @@
 package com.connectify.connectify.entity;
 
+import com.connectify.connectify.enums.ERelationshipStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 
 @Entity
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "relationships")
 public class Relationship {
     @Id
@@ -34,4 +34,7 @@ public class Relationship {
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     private Account receiver;
+
+    @Enumerated(EnumType.STRING)
+    private ERelationshipStatus status;
 }

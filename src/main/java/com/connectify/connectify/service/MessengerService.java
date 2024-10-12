@@ -78,7 +78,6 @@ public class MessengerService {
         members.add(searchRequest.getTargetMember());
         request.setMembers(members);
         request.setType(EMessengerType.PERSONAL);
-        System.out.println(request.getMembers().get(0));
         String createdMessengerId = p_create(request);
         CommonResponse<String> response = new CommonResponse<>(200, createdMessengerId, "Create messenger successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
