@@ -1,5 +1,6 @@
 package com.connectify.connectify.service;
 
+import com.connectify.connectify.DTO.request.CommonDeleteRequest;
 import com.connectify.connectify.DTO.request.CommonSearchRequest;
 import com.connectify.connectify.DTO.request.EditAccountRequest;
 import com.connectify.connectify.DTO.response.*;
@@ -21,11 +22,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.*;
 
 @Service
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AccountService {
     @Autowired
     AccountRepository accountRepository;
@@ -117,6 +120,12 @@ public class AccountService {
         accountRepository.save(targetAccount);
 
         CommonResponse<?> response = new CommonResponse<>(200, null, "Update role successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> delete (CommonDeleteRequest request) {
+        accountRepository.deleteAllById(request.getIds());
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Delete accounts successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
