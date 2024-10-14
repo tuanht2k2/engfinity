@@ -25,6 +25,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,7 +57,7 @@ public class CommentService {
     ModelMapper mapper;
 
     @Autowired
-    FirebaseService firebaseService;
+    SimpMessagingTemplate messagingTemplate;
 
     public void uploadFile (Comment comment, List<MultipartFile> multipartFiles) {
         if (multipartFiles.isEmpty()) return;
@@ -85,10 +86,8 @@ public class CommentService {
         CommentResponse commentResponse = mapper.map(createdComment, CommentResponse.class);
         commentResponse.setCreatedBy(publicAccountResponse);
 
-        DatabaseReference databaseReference = firebaseService.getDatabaseIns("posts/");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonComment = objectMapper.writeValueAsString(commentResponse);
-        databaseReference.child(request.getPostId()).child("comments").child(createdComment.getId()).setValueAsync(jsonComment);
+        String destination = "/topic/posts/" + request.getPostId() + "/comments";
+        messagingTemplate.convertAndSend(destination, commentResponse);
 
         CommonResponse<?> response = new CommonResponse<>(200, null, "Create comment successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);

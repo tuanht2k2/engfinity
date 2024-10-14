@@ -25,5 +25,10 @@ public interface MessengerRepository extends JpaRepository<Messenger, String> {
             nativeQuery = true)
     Optional<Messenger> findPersonalByMembers(@Param("member1") String member1, @Param("member2") String member2);
 
-
+    @Query(value = "SELECT * " +
+            "FROM messengers m " +
+            "INNER JOIN accounts_messengers am " +
+            "ON m.id = am.messenger_id " +
+            "WHERE am.account_id = :accountId", nativeQuery = true)
+    List<Messenger> findMessengersOfAccount (@Param("accountId") String accountId);
 }

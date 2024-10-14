@@ -1,6 +1,7 @@
 package com.connectify.connectify.service;
 
 import com.connectify.connectify.DTO.request.EditMessengerRequest;
+import com.connectify.connectify.DTO.request.SearchMessengerOfAccountRequest;
 import com.connectify.connectify.DTO.request.SearchPersonalMessengerByMember;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.DTO.response.MessengerResponse;
@@ -15,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,11 +36,18 @@ public class MessengerService {
     @Autowired
     ModelMapper mapper;
 
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
+
     private String p_create(EditMessengerRequest request) {
         Account currentAccount = authService.getCurrentAccount();
         request.getMembers().add(currentAccount.getId());
         List<Account> accounts =  accountRepository.findAllById(request.getMembers());
         Set<Account> accountSet = new HashSet<>(accounts);
+        StringBuilder name = new StringBuilder();
+        for (Account account: accountSet) {
+            name.append(" ").append(account.getDisplayName());
+        }
         if (accountSet.size() < 2 || request.getType() == null) throw new CustomException(EError.BAD_REQUEST);
         Messenger messenger = new Messenger();
         messenger.setCreatedAt(new Date());
@@ -46,6 +55,7 @@ public class MessengerService {
         messenger.setMembers(accountSet);
         messenger.setName(request.getName());
         messenger.setType(request.getType());
+        messenger.setName(name.toString());
         Messenger createdMessenger = messengerRepository.save(messenger);
         return createdMessenger.getId();
     }
@@ -82,4 +92,17 @@ public class MessengerService {
         CommonResponse<String> response = new CommonResponse<>(200, createdMessengerId, "Create messenger successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    public ResponseEntity<?> searchMessengerOfAccount (SearchMessengerOfAccountRequest request) {
+        List<Messenger> messengers = messengerRepository.findMessengersOfAccount(request.getAccountId());
+        List<MessengerResponse> messengerResponses = messengers.stream().map(this::messengerToMessengerResponse).toList();
+        CommonResponse<?> response = new CommonResponse<>(200, messengerResponses, "Search messenger successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    public MessengerResponse messengerToMessengerResponse (Messenger messenger) {
+        return mapper.map(messenger, MessengerResponse.class);
+    }
+
 }

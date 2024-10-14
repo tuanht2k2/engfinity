@@ -12,5 +12,6 @@ public class MessengerResponse {
     private List<PublicAccountResponse> members;
     private PublicAccountResponse createdBy;
     private Date createdAt;
+    private Date updatedAt;
     private EMessengerType type;
 }

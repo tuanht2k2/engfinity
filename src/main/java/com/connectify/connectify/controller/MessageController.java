@@ -5,10 +5,7 @@ import com.connectify.connectify.DTO.request.SearchMessageRequest;
 import com.connectify.connectify.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1/messages")
@@ -25,5 +22,4 @@ public class MessageController {
     public ResponseEntity<?> search (@RequestBody SearchMessageRequest request) {
         return messageService.search(request);
     }
-
 }

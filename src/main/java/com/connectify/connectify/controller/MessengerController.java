@@ -1,6 +1,7 @@
 package com.connectify.connectify.controller;
 
 import com.connectify.connectify.DTO.request.EditMessengerRequest;
+import com.connectify.connectify.DTO.request.SearchMessengerOfAccountRequest;
 import com.connectify.connectify.DTO.request.SearchPersonalMessengerByMember;
 import com.connectify.connectify.service.MessengerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,10 @@ public class MessengerController {
     @PostMapping("find-personal-by-members")
     public ResponseEntity<?> findByMembers (@RequestBody SearchPersonalMessengerByMember request) {
         return messengerService.findPersonalByMember(request);
+    }
+
+    @PostMapping("search-by-account")
+    public ResponseEntity<?> searchMessengerOfAccount (@RequestBody SearchMessengerOfAccountRequest request) {
+        return messengerService.searchMessengerOfAccount(request);
     }
 }

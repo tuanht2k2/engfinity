@@ -29,12 +29,11 @@ public class SecurityConfig {
     @Autowired
     JWTAuthenticationFilter jwtAuthenticationFilter;
 
-    public static String[] PUBLIC_END_POINTS = {"/api/v1/auth", "/api/v1/auth/*", "/api/v1/auth/check-valid-register-info", "/ws", "/ws/*"};
+    public static String[] PUBLIC_END_POINTS = {"/api/v1/auth", "/api/v1/auth/*", "/api/v1/auth/check-valid-register-info", "/ws", "/ws/**"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                // .cors(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request.requestMatchers(PUBLIC_END_POINTS)

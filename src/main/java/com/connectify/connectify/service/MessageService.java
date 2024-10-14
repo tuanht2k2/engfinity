@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -40,23 +41,29 @@ public class MessageService {
     @Autowired
     FirebaseService firebaseService;
 
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
+
     public ResponseEntity<?> create (EditMessageRequest request) {
         Optional<Messenger> optionalMessenger = messengerRepository.findById(request.getMessengerId());
         if (optionalMessenger.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
+
+        Messenger messenger = optionalMessenger.get();
+        messenger.setUpdatedAt(new Date());
+        messengerRepository.save(messenger);
 
         Message message = new Message();
         Account currentAccount = authService.getCurrentAccount();
         message.setCreatedBy(currentAccount);
         message.setCreatedAt(new Date());
-        message.setMessenger(optionalMessenger.get());
+        message.setMessenger(messenger);
         message.setContent(request.getContent());
         Message createdMessage = messageRepository.save(message);
 
-        DatabaseReference databaseReference = firebaseService.getDatabaseIns("messengers/");
-        System.out.println(request.getMessengerId());
-        databaseReference.child(request.getMessengerId()).child("messages").child(createdMessage.getId()).setValueAsync("");
+        String destination = "/topic/messengers/" + request.getMessengerId() + "/messages";
+        messagingTemplate.convertAndSend(destination, messageToMessageResponse(createdMessage));
 
-        CommonResponse<?> response = new CommonResponse<>(200, null, "Create message successfully!");
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Send message successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
