@@ -1,6 +1,7 @@
 package com.connectify.connectify.service;
 
 import com.connectify.connectify.DTO.request.EditRelationshipRequest;
+import com.connectify.connectify.DTO.request.SearchRelationshipRequest;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.DTO.response.RelationshipResponse;
 import com.connectify.connectify.entity.Account;
@@ -14,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -34,6 +36,9 @@ public class RelationshipService {
     @Autowired
     ModelMapper mapper;
 
+    @Autowired
+    SimpMessagingTemplate messagingTemplate;
+
     public ResponseEntity<?> create(EditRelationshipRequest request) {
         Optional<Account> optionalAccount = accountRepository.findById(request.getReceiverId());
         if (optionalAccount.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
@@ -43,7 +48,7 @@ public class RelationshipService {
         relationship.setReceiver(optionalAccount.get());
         relationship.setCreatedBy(currentAccount);
         relationship.setStatus(ERelationshipStatus.PENDING);
-        relationshipRepository.save(relationship);
+        Relationship createdRelationship = relationshipRepository.save(relationship);
         CommonResponse<?> response = new CommonResponse<>(200, null, "Send request successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -72,10 +77,18 @@ public class RelationshipService {
         Optional<Relationship> optionalRelationship = relationshipRepository.findRelationshipByAccounts(currentAccount.getId(), targetAccount);
         if (optionalRelationship.isEmpty()) return null;
         Relationship relationship = optionalRelationship.get();
-        RelationshipResponse relationshipResponse = mapper.map(relationship, RelationshipResponse.class);
-        relationshipResponse.setId(relationship.getId());
-        relationshipResponse.setCreatedBy(relationship.getCreatedBy().getId());
-        relationshipResponse.setReceiverId(relationship.getReceiver().getId());
-        return relationshipResponse;
+        return mapper.map(relationship, RelationshipResponse.class);
+    }
+
+    public ResponseEntity<?> getFriendRequests () {
+        Account currentAccount = authService.getCurrentAccount();
+        List<Relationship> relationships = relationshipRepository.findByReceiverIdAndStatus(currentAccount.getId(), ERelationshipStatus.PENDING);
+        List<RelationshipResponse> relationshipResponses = relationships.stream().map(this::relationshipToRelationshipResponse).toList();
+        CommonResponse<?> response = new CommonResponse<>(200, relationshipResponses, "Get friend requests successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public RelationshipResponse relationshipToRelationshipResponse (Relationship relationship) {
+        return mapper.map(relationship, RelationshipResponse.class);
     }
 }

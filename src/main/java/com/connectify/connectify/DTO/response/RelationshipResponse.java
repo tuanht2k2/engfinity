@@ -9,8 +9,8 @@ public class RelationshipResponse {
     private String id;
     private Date createdAt;
     private Date updatedAt;
-    private String updatedBy;
-    private String createdBy;
-    private String receiverId;
+    private PublicAccountResponse updatedBy;
+    private PublicAccountResponse createdBy;
+    private PublicAccountResponse receiver;
     private ERelationshipStatus status;
 }

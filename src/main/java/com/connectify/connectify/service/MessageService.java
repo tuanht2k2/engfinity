@@ -4,6 +4,7 @@ import com.connectify.connectify.DTO.request.EditMessageRequest;
 import com.connectify.connectify.DTO.request.SearchMessageRequest;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.DTO.response.MessageResponse;
+import com.connectify.connectify.DTO.response.NotificationResponse;
 import com.connectify.connectify.DTO.response.PublicAccountResponse;
 import com.connectify.connectify.entity.Account;
 import com.connectify.connectify.entity.Message;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class MessageService {
@@ -39,10 +41,10 @@ public class MessageService {
     ModelMapper mapper;
 
     @Autowired
-    FirebaseService firebaseService;
+    SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    SimpMessagingTemplate messagingTemplate;
+    CommonService commonService;
 
     public ResponseEntity<?> create (EditMessageRequest request) {
         Optional<Messenger> optionalMessenger = messengerRepository.findById(request.getMessengerId());
@@ -62,6 +64,17 @@ public class MessageService {
 
         String destination = "/topic/messengers/" + request.getMessengerId() + "/messages";
         messagingTemplate.convertAndSend(destination, messageToMessageResponse(createdMessage));
+
+        Set<Account> members = messenger.getMembers();
+        for (Account member : members) {
+            if (!member.getId().equals(currentAccount.getId())) {
+                String notificationDes = commonService.getAccountNotificationUrl(member.getId());
+                NotificationResponse notification = new NotificationResponse();
+                String notificationMessage = currentAccount.getDisplayName() + " đã gửi tin nhắn";
+                notification.setMessage(notificationMessage);
+                messagingTemplate.convertAndSend(notificationDes, notification);
+            }
+        }
 
         CommonResponse<?> response = new CommonResponse<>(200, null, "Send message successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);

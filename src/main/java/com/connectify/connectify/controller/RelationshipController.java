@@ -2,6 +2,7 @@ package com.connectify.connectify.controller;
 
 import com.connectify.connectify.DTO.request.CommonDeleteRequest;
 import com.connectify.connectify.DTO.request.EditRelationshipRequest;
+import com.connectify.connectify.DTO.request.SearchRelationshipRequest;
 import com.connectify.connectify.service.RelationshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,5 +29,10 @@ public class RelationshipController {
     @PostMapping("accept")
     public ResponseEntity<?> accept (@RequestBody EditRelationshipRequest request) {
         return relationshipService.accept(request.getId());
+    }
+
+    @GetMapping("get-friend-requests")
+    public ResponseEntity<?> getFriendRequest () {
+        return relationshipService.getFriendRequests();
     }
 }
