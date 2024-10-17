@@ -19,7 +19,7 @@ public class MessengerController {
         return messengerService.get(id);
     }
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<?> create (@RequestBody EditMessengerRequest request) {
         return messengerService.create(request);
     }
@@ -32,5 +32,10 @@ public class MessengerController {
     @PostMapping("search-by-account")
     public ResponseEntity<?> searchMessengerOfAccount (@RequestBody SearchMessengerOfAccountRequest request) {
         return messengerService.searchMessengerOfAccount(request);
+    }
+
+    @PostMapping("add-members")
+    public ResponseEntity<?> addMember (@RequestBody EditMessengerRequest request) {
+        return messengerService.addMember(request);
     }
 }

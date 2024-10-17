@@ -40,22 +40,24 @@ public class MessengerService {
     SimpMessagingTemplate messagingTemplate;
 
     private String p_create(EditMessengerRequest request) {
+        if (request.getType().equals(EMessengerType.GROUP) && request.getMembers().size() < 2) throw new CustomException(EError.BAD_REQUEST);
         Account currentAccount = authService.getCurrentAccount();
         request.getMembers().add(currentAccount.getId());
         List<Account> accounts =  accountRepository.findAllById(request.getMembers());
         Set<Account> accountSet = new HashSet<>(accounts);
-        StringBuilder name = new StringBuilder();
-        for (Account account: accountSet) {
-            name.append(" ").append(account.getDisplayName());
-        }
+
         if (accountSet.size() < 2 || request.getType() == null) throw new CustomException(EError.BAD_REQUEST);
         Messenger messenger = new Messenger();
         messenger.setCreatedAt(new Date());
         messenger.setCreatedBy(currentAccount);
         messenger.setMembers(accountSet);
-        messenger.setName(request.getName());
+        if (request.getName().isEmpty()) {
+            messenger.setName("Cuộc trò chuyện mới");
+        } else {
+            messenger.setName(request.getName());
+        }
         messenger.setType(request.getType());
-        messenger.setName(name.toString());
+        messenger.setName(request.getName());
         Messenger createdMessenger = messengerRepository.save(messenger);
         return createdMessenger.getId();
     }
@@ -100,9 +102,27 @@ public class MessengerService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    public ResponseEntity<?> addMember (EditMessengerRequest request) {
+        Optional<Messenger> optionalMessenger = messengerRepository.findById(request.getId());
+        if (optionalMessenger.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
+        Messenger messenger = optionalMessenger.get();
+        if (messenger.getType().equals(EMessengerType.PERSONAL)) throw new CustomException(EError.BAD_REQUEST);
+        List<Account> members = accountRepository.findAllById(request.getMembers());
+        messenger.getMembers().addAll(members);
+        messengerRepository.save(messenger);
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Add members successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     public MessengerResponse messengerToMessengerResponse (Messenger messenger) {
         return mapper.map(messenger, MessengerResponse.class);
+    }
+
+    //internal use
+    public Messenger s_get (String id) {
+        Optional<Messenger> optionalMessenger = messengerRepository.findById(id);
+        if (optionalMessenger.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
+        return optionalMessenger.get();
     }
 
 }
