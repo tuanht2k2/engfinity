@@ -60,12 +60,12 @@ public class MessageService {
         message.setCreatedAt(new Date());
         message.setMessenger(messenger);
         message.setContent(request.getContent());
-        Message createdMessage = messageRepository.save(message);
+        Message createdMessage = messageRepository.save(message); // tạo tin nhắn
 
         String destination = "/topic/messengers/" + request.getMessengerId() + "/messages";
-        messagingTemplate.convertAndSend(destination, messageToMessageResponse(createdMessage));
+        messagingTemplate.convertAndSend(destination, messageToMessageResponse(createdMessage)); // lấy đường dẫn: kênh
 
-        Set<Account> members = messenger.getMembers();
+        Set<Account> members = messenger.getMembers(); // lấy hết người dùng thuộc cuộc trò chuyện
         for (Account member : members) {
             if (!member.getId().equals(currentAccount.getId())) {
                 String notificationDes = commonService.getAccountNotificationUrl(member.getId());

@@ -2,6 +2,7 @@ package com.connectify.connectify.controller;
 
 import com.connectify.connectify.DTO.request.CommonDeleteRequest;
 import com.connectify.connectify.DTO.request.CommonSearchRequest;
+import com.connectify.connectify.DTO.request.SearchAccountByPhoneNumbersRequest;
 import com.connectify.connectify.DTO.response.CommonResponse;
 import com.connectify.connectify.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,10 @@ public class AccountController {
     @PostMapping("delete")
     public ResponseEntity<?> delete (@RequestBody CommonDeleteRequest request) {
         return accountService.delete(request);
+    }
+
+    @PostMapping("search-by-phone-numbers")
+    public ResponseEntity<?> searchByPhoneNumbers (@RequestBody SearchAccountByPhoneNumbersRequest request) {
+        return accountService.searchByPhoneNumbers(request);
     }
 }

@@ -3,6 +3,7 @@ package com.connectify.connectify.service;
 import com.connectify.connectify.DTO.request.CommonDeleteRequest;
 import com.connectify.connectify.DTO.request.CommonSearchRequest;
 import com.connectify.connectify.DTO.request.EditAccountRequest;
+import com.connectify.connectify.DTO.request.SearchAccountByPhoneNumbersRequest;
 import com.connectify.connectify.DTO.response.*;
 import com.connectify.connectify.entity.Role;
 import com.connectify.connectify.enums.EError;
@@ -10,16 +11,12 @@ import com.connectify.connectify.enums.ERole;
 import com.connectify.connectify.exception.CustomException;
 import com.connectify.connectify.entity.Account;
 import com.connectify.connectify.repository.AccountRepository;
-import com.connectify.connectify.repository.RelationshipRepository;
 import com.connectify.connectify.repository.RoleRepository;
-import com.google.api.Http;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -126,6 +123,13 @@ public class AccountService {
     public ResponseEntity<?> delete (CommonDeleteRequest request) {
         accountRepository.deleteAllById(request.getIds());
         CommonResponse<?> response = new CommonResponse<>(200, null, "Delete accounts successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> searchByPhoneNumbers (SearchAccountByPhoneNumbersRequest request) {
+        List<Account> accounts = accountRepository.searchByPhoneNumbers(request.getPhoneNumbers());
+        List<PublicAccountResponse> accountResponses = accounts.stream().map(this::accountToPublicAccountResponse).toList();
+        CommonResponse<?> response = new CommonResponse<>(200, accountResponses, "Search accounts successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

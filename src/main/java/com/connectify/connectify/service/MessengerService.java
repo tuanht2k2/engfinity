@@ -51,7 +51,7 @@ public class MessengerService {
         messenger.setCreatedAt(new Date());
         messenger.setCreatedBy(currentAccount);
         messenger.setMembers(accountSet);
-        if (request.getName().isEmpty()) {
+        if (request.getName() != null && request.getName().isEmpty()) {
             messenger.setName("Cuộc trò chuyện mới");
         } else {
             messenger.setName(request.getName());

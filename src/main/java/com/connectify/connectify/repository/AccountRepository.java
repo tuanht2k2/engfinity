@@ -29,7 +29,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             "WHERE (display_name LIKE CONCAT('%', :keyword, '%') " +
             "   OR full_name LIKE CONCAT('%', :keyword, '%') " +
             "   OR email LIKE CONCAT('%', :keyword, '%') " +
-            "   OR address LIKE CONCAT('%', :keyword, '%')) " +
+            "   OR address LIKE CONCAT('%', :keyword, '%') " +
+            "   OR phone_number LIKE CONCAT('%', :keyword, '%')) " +
             "ORDER BY :sortBy :sortDir " +
             "LIMIT :pageSize OFFSET :offset", nativeQuery = true)
     List<Account> search (
@@ -38,4 +39,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
             @Param("sortBy") String sortBy,
             @Param("sortDir") String sortDir,
             @Param("keyword") String keyword);
+
+    @Query(value = "SELECT * FROM accounts WHERE phone_number IN :phoneNumbers", nativeQuery = true)
+    List<Account> searchByPhoneNumbers(@Param("phoneNumbers") List<String> phoneNumbers);
+
 }
