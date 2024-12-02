@@ -2,6 +2,7 @@ package com.kma.engfinity.controller;
 
 import com.kma.engfinity.DTO.request.CommonDeleteRequest;
 import com.kma.engfinity.DTO.request.CommonSearchRequest;
+import com.kma.engfinity.DTO.request.EditAccountRequest;
 import com.kma.engfinity.DTO.request.SearchAccountByPhoneNumbersRequest;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.service.AccountService;
@@ -33,5 +34,15 @@ public class AccountController {
     @PostMapping("search-by-phone-numbers")
     public ResponseEntity<?> searchByPhoneNumbers (@RequestBody SearchAccountByPhoneNumbersRequest request) {
         return accountService.searchByPhoneNumbers(request);
+    }
+
+    @PostMapping("update")
+    public ResponseEntity<?> update (@RequestBody EditAccountRequest request) {
+        return accountService.update(request);
+    }
+
+    @PostMapping("update-role")
+    public ResponseEntity<?> updateRole (@RequestBody EditAccountRequest request) {
+        return accountService.updateRole(request);
     }
 }

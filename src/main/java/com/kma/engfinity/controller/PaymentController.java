@@ -1,6 +1,6 @@
 package com.kma.engfinity.controller;
 
-import com.kma.engfinity.DTO.request.CreatePaymentRequest;
+import com.kma.engfinity.DTO.request.EditPaymentRequest;
 import com.kma.engfinity.DTO.response.MomoPaymentResultResponse;
 import com.kma.engfinity.service.MomoPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ public class PaymentController {
     MomoPaymentService momoPaymentService;
 
     @PostMapping("")
-    public ResponseEntity<?> create(@RequestBody CreatePaymentRequest request) {
+    public ResponseEntity<?> create(@RequestBody EditPaymentRequest request) {
         return momoPaymentService.create(request);
     }
 

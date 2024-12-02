@@ -6,11 +6,8 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class PrivateAccountResponse {
-    private String id;
+public class PrivateAccountResponse extends PublicAccountResponse{
     private String email;
     private String phoneNumber;
-    private String profileImage;
-    private String name;
     private Long balance;
 }

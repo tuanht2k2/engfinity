@@ -2,10 +2,15 @@ package com.kma.engfinity.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.kma.engfinity.DTO.request.CreatePaymentRequest;
+import com.kma.engfinity.DTO.request.EditAccountBalanceRequest;
+import com.kma.engfinity.DTO.request.EditPaymentRequest;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.DTO.response.CreateMomoPaymentResponse;
 import com.kma.engfinity.DTO.response.MomoPaymentResultResponse;
+import com.kma.engfinity.entity.Payment;
+import com.kma.engfinity.enums.EPaymentStatus;
+import com.kma.engfinity.enums.EPaymentType;
+import com.kma.engfinity.enums.ETransferType;
 import com.kma.engfinity.utils.Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class MomoPaymentService {
@@ -43,18 +49,24 @@ public class MomoPaymentService {
     @Autowired
     ObjectMapper mapper;
 
-    public ResponseEntity<?> create(CreatePaymentRequest request) {
+    @Autowired
+    PaymentService paymentService;
+
+    @Autowired
+    AccountService accountService;
+
+    public ResponseEntity<?> create(EditPaymentRequest request) {
         try {
             String orderId = PARTNER_CODE + System.currentTimeMillis();
             String requestType = "payWithMethod";
             String ipnUrl = NGROK_URL;
-            String redirectUrl = "https://webhook.site/b3088a6a-2d17-4f8d-a383-71389a6c600b";
+            String redirectUrl = "https://www.facebook.com/";
             String rawSignature = "accessKey=" + ACCESS_KEY +
                     "&amount=" + request.getAmount() +
                     "&extraData=" + "Engfinity" +
                     "&ipnUrl=" + ipnUrl +
                     "&orderId=" + orderId +
-                    "&orderInfo=" + request.getOrderInfo() +
+                    "&orderInfo=" + request.getDescription() +
                     "&partnerCode=" + PARTNER_CODE +
                     "&redirectUrl=" + redirectUrl +
                     "&requestId=" + orderId +
@@ -70,7 +82,7 @@ public class MomoPaymentService {
             requestBody.put("requestId", orderId);
             requestBody.put("amount", request.getAmount());
             requestBody.put("orderId", orderId);
-            requestBody.put("orderInfo", request.getOrderInfo());
+            requestBody.put("orderInfo", request.getDescription());
             requestBody.put("redirectUrl", redirectUrl);
             requestBody.put("ipnUrl", ipnUrl);
             requestBody.put("lang", lang);
@@ -83,6 +95,16 @@ public class MomoPaymentService {
 
             String createPaymentResponse = sendHttpPost(momoEndpoint, requestBody);
             CreateMomoPaymentResponse convertedCreatePaymentResponse = mapper.readValue(createPaymentResponse, CreateMomoPaymentResponse.class);
+            if (convertedCreatePaymentResponse.getResultCode().equals(0)) {
+                EditPaymentRequest editPaymentRequest = EditPaymentRequest.builder()
+                        .receiver(request.getReceiver())
+                        .amount(request.getAmount())
+                        .id(orderId)
+                        .type(EPaymentType.PAYMENT)
+                        .description(request.getDescription())
+                        .build();
+                paymentService.create(editPaymentRequest);
+            }
             CommonResponse<?> response = new CommonResponse<>(200, convertedCreatePaymentResponse, "");
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -92,7 +114,23 @@ public class MomoPaymentService {
     }
 
     public void handlePaymentResult (MomoPaymentResultResponse response) {
-        System.out.println(response.getMessage());
+        if (response.getResultCode().equals(0)) {
+            // Update payment entity status
+            EditPaymentRequest editPaymentRequest = EditPaymentRequest.builder()
+                    .id(response.getOrderId())
+                    .status(EPaymentStatus.DONE)
+                    .build();
+            paymentService.update(editPaymentRequest);
+
+            // update account balance
+            Payment payment = paymentService.get(editPaymentRequest.getId());
+            EditAccountBalanceRequest editAccountBalanceRequest = EditAccountBalanceRequest.builder()
+                    .id(payment.getCreatedBy().getId())
+                    .amount(response.getAmount())
+                    .type(ETransferType.INCOMING)
+                    .build();
+            accountService.updateBalance(editAccountBalanceRequest);
+        }
     }
 
     public String sendHttpPost(String url, Map<String, Object> requestBody) throws Exception {

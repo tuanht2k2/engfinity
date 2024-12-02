@@ -1,15 +1,14 @@
 package com.kma.engfinity.entity;
 
+import com.kma.engfinity.enums.EPaymentStatus;
 import com.kma.engfinity.enums.EPaymentType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
@@ -21,7 +20,6 @@ import java.util.Date;
 @Table(name = "payments")
 public class Payment {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @CreatedDate
@@ -32,15 +30,17 @@ public class Payment {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @CreatedBy
     @ManyToOne
     @JoinColumn(name = "updated_by")
-    private Account createdBy;
+    private Account updatedBy;
 
-    @LastModifiedBy
     @ManyToOne
     @JoinColumn(name = "created_by")
-    private Account updatedBy;
+    private Account createdBy;
+
+    @ManyToOne
+    @JoinColumn(name = "receiver")
+    private Account receiver;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -48,7 +48,9 @@ public class Payment {
 
     private Long amount;
 
-    private Long remainingBalance;
-
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private EPaymentStatus status;
 }

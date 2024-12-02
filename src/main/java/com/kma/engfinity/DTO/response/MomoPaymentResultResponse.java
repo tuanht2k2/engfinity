@@ -5,7 +5,8 @@ import lombok.Data;
 @Data
 public class MomoPaymentResultResponse {
     private String orderId;
-    private String resultCode;
+    private Integer resultCode;
     private String message;
     private String signature;
+    private Long amount;
 }

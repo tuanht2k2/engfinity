@@ -1,11 +1,10 @@
 package com.kma.engfinity.service;
 
-import com.kma.engfinity.DTO.request.CommonDeleteRequest;
-import com.kma.engfinity.DTO.request.CommonSearchRequest;
-import com.kma.engfinity.DTO.request.EditAccountRequest;
-import com.kma.engfinity.DTO.request.SearchAccountByPhoneNumbersRequest;
+import com.kma.engfinity.DTO.request.*;
 import com.kma.engfinity.DTO.response.*;
 import com.kma.engfinity.enums.EError;
+import com.kma.engfinity.enums.ERole;
+import com.kma.engfinity.enums.ETransferType;
 import com.kma.engfinity.exception.CustomException;
 import com.kma.engfinity.entity.Account;
 import com.kma.engfinity.repository.AccountRepository;
@@ -50,6 +49,7 @@ public class AccountService {
 
         Account newAccount = modelMapper.map(editAccountRequest, Account.class);
         newAccount.setCreatedAt(new Date());
+        newAccount.setRole(ERole.USER);
         newAccount.setPassword(encodedPassword);
 
 
@@ -99,5 +99,42 @@ public class AccountService {
         List<PublicAccountResponse> accountResponses = accounts.stream().map(this::accountToPublicAccountResponse).toList();
         CommonResponse<?> response = new CommonResponse<>(200, accountResponses, "Search accounts successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> update (EditAccountRequest request) {
+        Optional<Account> optionalAccount = accountRepository.findById(request.getId());
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.USER_NOT_EXISTED);
+        Account account = optionalAccount.get();
+        if (request.getName() != null) account.setName(request.getName());
+        if (request.getPhoneNumber() != null) account.setPhoneNumber(request.getPhoneNumber());
+        if (request.getEmail() != null) account.setEmail(request.getEmail());
+        accountRepository.save(account);
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Update account successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> updateRole (EditAccountRequest request) {
+        Account currentAccount = authService.getCurrentAccount();
+        if (!currentAccount.getRole().equals(ERole.ADMIN)) throw new CustomException(EError.UNAUTHORIZED);
+        Optional<Account> optionalAccount = accountRepository.findById(request.getId());
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.USER_NOT_EXISTED);
+        Account account = optionalAccount.get();
+        account.setRole(request.getRole());
+        accountRepository.save(account);
+        CommonResponse<?> response = new CommonResponse<>(200, null, "Update role successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public void updateBalance(EditAccountBalanceRequest request) {
+        Optional<Account> optionalAccount = accountRepository.findById(request.getId());
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.USER_NOT_EXISTED);
+        Account account = optionalAccount.get();
+        if (request.getType().equals(ETransferType.INCOMING)) {
+            account.setBalance(account.getBalance() + request.getAmount());
+        } else {
+            if (account.getBalance() < request.getAmount()) throw new CustomException(EError.BAD_REQUEST);
+            account.setBalance(account.getBalance() - request.getAmount());
+        }
+        accountRepository.save(account);
     }
 }

@@ -1,6 +1,7 @@
 package com.kma.engfinity.entity;
 
 import com.kma.engfinity.enums.EAccountStatus;
+import com.kma.engfinity.enums.ERole;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -49,5 +50,9 @@ public class Account {
 
     @Column(name = "balance")
     private Long balance = 0L;
+
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private ERole role;
 }
 

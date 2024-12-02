@@ -1,12 +1,12 @@
 package com.kma.engfinity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum ERole {
-    SUPER_ADMIN("All permissions"),
-    SUPER_MODERATOR(""),
-    USER("Normal permissions"),
-    ADMIN("All permissions of specific context"),
-    MODERATOR("Add, remove user(exclude Admin); Approve, delete post of other members of specific context"),
-    MEMBER("CRUD post/ message of a specific context");
+    ADMIN("All permissions"),
+    TEACHER("Teacher"),
+    USER("Normal permissions");
 
     private final String description;
 
@@ -14,8 +14,5 @@ public enum ERole {
         this.description = description;
     }
 
-    public String getDescription() {
-        return description;
-    }
 }
 
