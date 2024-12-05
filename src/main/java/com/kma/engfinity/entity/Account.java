@@ -1,6 +1,7 @@
 package com.kma.engfinity.entity;
 
 import com.kma.engfinity.enums.EAccountStatus;
+import com.kma.engfinity.enums.EGender;
 import com.kma.engfinity.enums.ERole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -54,5 +55,24 @@ public class Account {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private ERole role;
+
+    @Column(name = "identification")
+    private String identification;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "gender")
+    @Enumerated(EnumType.STRING)
+    private EGender gender;
+
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "last_seen")
+    private Date lastSeen;
+
+    @Column(name = "cost")
+    private Long cost;
 }
 

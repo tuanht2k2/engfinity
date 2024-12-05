@@ -2,9 +2,10 @@ package com.kma.engfinity.enums;
 
 public enum EAccountStatus {
 
-    ACTIVE("active"),
-    INACTIVE("inactive"),
-    BLOCKED("blocked");
+    ONLINE("User online"),
+    OFFLINE("User offline"),
+    IN_CALL("User is in a call"),
+    BLOCKED("User is blocked");
 
     private final String status;
 

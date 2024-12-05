@@ -18,4 +18,8 @@ public class EditAccountRequest {
     private String name;
     private Long balance;
     private ERole role;
+    private EGender gender;
+    private String address;
+    private String identification;
+    private String fullName;
 }

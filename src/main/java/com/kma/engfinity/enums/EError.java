@@ -1,5 +1,8 @@
 package com.kma.engfinity.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum EError {
     BAD_REQUEST("Bad request!"),
     EXISTED_BY_USERNAME("Username is existed!"),
@@ -10,7 +13,9 @@ public enum EError {
     INCORRECT_PASSWORD("Password is not correct!"),
     UNAUTHENTICATED("Account is not authenticated!"),
     UNAUTHORIZED("Account is not authenticated!"),
-    ROLE_NOT_FOUND("Role not found!");
+    ROLE_NOT_FOUND("Role not found!"),
+    TOPIC_NOT_EXISTED("User is not existed!"),
+    USER_IN_CALL("User is in a call!");
 
     private final String message;
 
@@ -18,9 +23,6 @@ public enum EError {
         this.message = message;
     }
 
-    public String getMessage() {
-        return message;
-    }
 }
 
 

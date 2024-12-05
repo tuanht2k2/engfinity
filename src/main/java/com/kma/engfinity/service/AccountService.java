@@ -2,6 +2,7 @@ package com.kma.engfinity.service;
 
 import com.kma.engfinity.DTO.request.*;
 import com.kma.engfinity.DTO.response.*;
+import com.kma.engfinity.enums.EAccountStatus;
 import com.kma.engfinity.enums.EError;
 import com.kma.engfinity.enums.ERole;
 import com.kma.engfinity.enums.ETransferType;
@@ -32,8 +33,6 @@ public class AccountService {
     @Autowired
     AuthService authService;
 
-
-
     private BCryptPasswordEncoder passwordEncoder;
 
     AccountService() {
@@ -48,6 +47,7 @@ public class AccountService {
         String encodedPassword = passwordEncoder.encode(editAccountRequest.getPassword());
 
         Account newAccount = modelMapper.map(editAccountRequest, Account.class);
+        newAccount.setBalance(0L);
         newAccount.setCreatedAt(new Date());
         newAccount.setRole(ERole.USER);
         newAccount.setPassword(encodedPassword);
@@ -77,12 +77,18 @@ public class AccountService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    public Account getAccountById (String id) {
+        Optional<Account> optionalAccount = accountRepository.findById(id);
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.USER_NOT_EXISTED);
+        return optionalAccount.get();
+    }
+
     private PublicAccountResponse accountToPublicAccountResponse(Account account) {
         return modelMapper.map(account, PublicAccountResponse.class);
     }
 
-    public ResponseEntity<?> search (CommonSearchRequest request) {
-        List<Account> accounts = accountRepository.search(request.getPage() * request.getPageSize(), request.getPageSize(), request.getSortBy(), request.getSortDir(), request.getKeyword());
+    public ResponseEntity<?> search (SearchAccountRequest request) {
+        List<Account> accounts = accountRepository.search(request.getPage() * request.getPageSize(), request.getPageSize(), request.getSortBy(), request.getSortDir(), request.getKeyword(), request.getRole().name());
         List<PublicAccountResponse> accountResponses = accounts.stream().map(this::accountToPublicAccountResponse).toList();
         CommonResponse<?> response = new CommonResponse<>(200, accountResponses, "Search accounts successfully!");
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -137,4 +143,41 @@ public class AccountService {
         }
         accountRepository.save(account);
     }
+
+    public ResponseEntity<?> becomeATeacher (EditAccountRequest request) {
+        if (accountRepository.existsByIdentification(request.getIdentification())) throw new CustomException(EError.EXISTED_BY_IDENTIFICATION_NUMBER);
+        Optional<Account> optionalAccount = accountRepository.findById(request.getId());
+        if (optionalAccount.isEmpty()) throw new CustomException(EError.USER_NOT_EXISTED);
+        Account account = optionalAccount.get();
+        account.setRole(ERole.TEACHER);
+        account.setAddress(request.getAddress());
+        account.setGender(request.getGender());
+        account.setFullName(request.getFullName());
+        account.setIdentification(request.getIdentification());
+        accountRepository.save(account);
+        PrivateAccountResponse privateAccountResponse = modelMapper.map(account, PrivateAccountResponse.class);
+        CommonResponse<?> response = new CommonResponse<>(200, privateAccountResponse, "Register successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> updateStatus (EditAccountStatusRequest request) {
+        Account account = this.getAccountById(request.getId());
+        if (request.getStatus().equals(EAccountStatus.BLOCKED) || request.getStatus().equals(EAccountStatus.OFFLINE)) {
+            account.setLastSeen(new Date());
+        }
+        account.setStatus(request.getStatus());
+        accountRepository.save(account);
+        CommonResponse<?> response = new CommonResponse<>(200, account, "Update status successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> updateTeacherInfo (EditTeacherRequest request) {
+        Account account = this.getAccountById(request.getId());
+        if (!account.getRole().equals(ERole.TEACHER)) throw new CustomException(EError.BAD_REQUEST);
+        if (request.getCost() != null) account.setCost(request.getCost());
+        accountRepository.save(account);
+        CommonResponse<?> response = new CommonResponse<>(200, account, "Update teacher info successfully!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

@@ -1,9 +1,6 @@
 package com.kma.engfinity.controller;
 
-import com.kma.engfinity.DTO.request.CommonDeleteRequest;
-import com.kma.engfinity.DTO.request.CommonSearchRequest;
-import com.kma.engfinity.DTO.request.EditAccountRequest;
-import com.kma.engfinity.DTO.request.SearchAccountByPhoneNumbersRequest;
+import com.kma.engfinity.DTO.request.*;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +19,7 @@ public class AccountController {
     }
 
     @PostMapping("search")
-    public ResponseEntity<?> search (@RequestBody CommonSearchRequest request) {
+    public ResponseEntity<?> search (@RequestBody SearchAccountRequest request) {
         return accountService.search(request);
     }
 
@@ -45,4 +42,20 @@ public class AccountController {
     public ResponseEntity<?> updateRole (@RequestBody EditAccountRequest request) {
         return accountService.updateRole(request);
     }
+
+    @PostMapping("become-a-teacher")
+    public ResponseEntity<?> becomeATeacher (@RequestBody EditAccountRequest request) {
+        return accountService.becomeATeacher(request);
+    }
+
+    @PostMapping("update-status")
+    public ResponseEntity<?> updateStatus (@RequestBody EditAccountStatusRequest request) {
+        return accountService.updateStatus(request);
+    }
+
+    @PutMapping("teachers")
+    public ResponseEntity<?> updateTeacherInfo (@RequestBody EditTeacherRequest request) {
+        return accountService.updateTeacherInfo(request);
+    }
+
 }

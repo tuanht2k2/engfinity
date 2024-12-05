@@ -114,6 +114,8 @@ public class MomoPaymentService {
     }
 
     public void handlePaymentResult (MomoPaymentResultResponse response) {
+        System.out.println(response.getResultCode());
+
         if (response.getResultCode().equals(0)) {
             // Update payment entity status
             EditPaymentRequest editPaymentRequest = EditPaymentRequest.builder()
