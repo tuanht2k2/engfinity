@@ -1,7 +1,14 @@
 package com.kma.engfinity.controller;
 
+import com.kma.engfinity.DTO.WebRTCDto;
 import com.kma.engfinity.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,4 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoomController {
     @Autowired
     private RoomService roomService;
+
+    @MessageMapping("/rooms/video-call")
+    public ResponseEntity<?> sendWebRTCData(@Payload WebRTCDto request) {
+        return roomService.sendWebRTCData(request);
+    }
 }

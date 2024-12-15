@@ -1,12 +1,17 @@
 package com.kma.engfinity.service;
 
 import com.kma.engfinity.DTO.request.EditHireRequest;
+import com.kma.engfinity.DTO.request.EditRoomRequest;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.DTO.response.HireResponse;
+import com.kma.engfinity.DTO.response.PublicAccountResponse;
+import com.kma.engfinity.DTO.response.RoomResponse;
 import com.kma.engfinity.entity.Account;
 import com.kma.engfinity.entity.Hire;
+import com.kma.engfinity.entity.Room;
 import com.kma.engfinity.enums.EAccountStatus;
 import com.kma.engfinity.enums.EError;
+import com.kma.engfinity.enums.EHireStatus;
 import com.kma.engfinity.exception.CustomException;
 import com.kma.engfinity.repository.HireRepository;
 import org.modelmapper.ModelMapper;
@@ -31,6 +36,9 @@ public class HireService {
     private AccountService accountService;
 
     @Autowired
+    private RoomService roomService;
+
+    @Autowired
     private WebSocketService webSocketService;
 
     public ResponseEntity<?> create (EditHireRequest request) {
@@ -52,9 +60,22 @@ public class HireService {
     public ResponseEntity<?> updateStatus (EditHireRequest request) {
         Optional<Hire> optionalHire = hireRepository.findById(request.getId());
         if (optionalHire.isEmpty()) throw new CustomException(EError.BAD_REQUEST);
+        Hire hire = optionalHire.get();
+        hire.setStatus(request.getStatus());
+        if (request.getStatus().equals(EHireStatus.ACCEPTED)) {
+            EditRoomRequest editRoomRequest = new EditRoomRequest();
+            editRoomRequest.setHireId(hire.getId());
+            editRoomRequest.setExpectedCallDuration(request.getTotalTime());
+            Room createdRoom = roomService.create(editRoomRequest);
+            hire.setRoom(createdRoom);
+        }
+        HireResponse hireResponse = modelMapper.map(hire, HireResponse.class);
+        hireResponse.setTeacher(modelMapper.map(hireResponse.getTeacher(), PublicAccountResponse.class));
+        hireResponse.setCreatedBy(modelMapper.map(hireResponse.getCreatedBy(), PublicAccountResponse.class));
         String destination = "/topic/teachers/" + request.getTeacherId();
-        webSocketService.sendData(destination, hireResponse);
-        CommonResponse<?> response = new CommonResponse<>(200, createdHire, "Create hire successfully!");
+        webSocketService.sendData(destination, hire);
+
+        CommonResponse<?> response = new CommonResponse<>(200, hireResponse, "Update status successfully!");
         return ResponseEntity.ok(response);
     }
 }

@@ -1,5 +1,7 @@
 package com.kma.engfinity.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kma.engfinity.enums.ERoomStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -55,8 +57,11 @@ public class Room {
 
     private Integer actualCallDuration;
 
-    @OneToOne
-    @JoinColumn(name = "hire")
+    @Enumerated(EnumType.STRING)
+    private ERoomStatus status;
+
+    @OneToOne(mappedBy = "room", fetch = FetchType.EAGER)
+    @JsonIgnore
     private Hire hire;
 
 }

@@ -49,7 +49,7 @@ public class Hire {
     @Enumerated(EnumType.STRING)
     private EHireStatus status;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room")
     private Room room;
 }
