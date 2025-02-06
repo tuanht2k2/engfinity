@@ -1,8 +1,8 @@
 package com.kma.engfinity.service;
 
+import com.kma.common.entity.Account;
 import com.kma.engfinity.DTO.VideoCallDto;
 import com.kma.engfinity.DTO.response.CommonResponse;
-import com.kma.engfinity.entity.Account;
 import com.kma.engfinity.entity.Messenger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

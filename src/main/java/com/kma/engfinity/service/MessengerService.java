@@ -1,11 +1,11 @@
 package com.kma.engfinity.service;
 
+import com.kma.common.entity.Account;
 import com.kma.engfinity.DTO.request.EditMessengerRequest;
 import com.kma.engfinity.DTO.request.SearchMessengerOfAccountRequest;
 import com.kma.engfinity.DTO.request.SearchPersonalMessengerByMember;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.DTO.response.MessengerResponse;
-import com.kma.engfinity.entity.Account;
 import com.kma.engfinity.entity.Messenger;
 import com.kma.engfinity.enums.EError;
 import com.kma.engfinity.enums.EMessengerType;

@@ -1,6 +1,6 @@
 package com.kma.engfinity.JWT;
 
-import com.kma.engfinity.entity.Account;
+import com.kma.common.entity.Account;
 import com.kma.engfinity.repository.AccountRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

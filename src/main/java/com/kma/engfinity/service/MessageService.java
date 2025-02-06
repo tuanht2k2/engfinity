@@ -1,12 +1,12 @@
 package com.kma.engfinity.service;
 
+import com.kma.common.entity.Account;
 import com.kma.engfinity.DTO.request.EditMessageRequest;
 import com.kma.engfinity.DTO.request.SearchMessageRequest;
 import com.kma.engfinity.DTO.response.CommonResponse;
 import com.kma.engfinity.DTO.response.MessageResponse;
 import com.kma.engfinity.DTO.response.NotificationResponse;
 import com.kma.engfinity.DTO.response.PublicAccountResponse;
-import com.kma.engfinity.entity.Account;
 import com.kma.engfinity.entity.Message;
 import com.kma.engfinity.entity.Messenger;
 import com.kma.engfinity.enums.EError;
